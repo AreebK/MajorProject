@@ -28,7 +28,7 @@ class Bullet {
     // fill(0);
     // ellipse(this.x, this.y, this.radius, this.radius);
     imageMode(CENTER);
-    image(this.imageToDisplay, this.x, this.y);
+    image(this.imageToDisplay, this.x, this.y, 10, 22);
   }
 }
 
@@ -39,8 +39,8 @@ class Player1 {
     this.imageToDisplay = theImage;
     this.dx = 5;
     this.dy = 5;
-    this.w = this.imageToDisplay.width;
-    this.h = this.imageToDisplay.height;
+    this.w = 50;
+    this.h = 70;
     this.bulletArray = [];
     this.isMovingUp = false;
     this.isMovingDown = false;
@@ -63,7 +63,7 @@ class Player1 {
     }
     if (key === " ") {
       //fire photons!!!
-      let someBullet = new Bullet(this.x, this.y, 0, -10, bulletImage);
+      let someBullet = new Bullet(this.x, this.y, 0, -10, bulletImg);
       this.bulletArray.push(someBullet);
     }
   }
@@ -98,7 +98,7 @@ class Player1 {
       this.x -= this.dx;
     }
 
-    // Lets you see the bullets 
+    // Lets you see the bullets
     for (let i = this.bulletArray.length - 1; i >= 0; i--) {
       this.bulletArray[i].update();
       this.bulletArray[i].display();
@@ -110,23 +110,34 @@ class Player1 {
 
   display() {
     imageMode(CENTER);
-    image(this.imageToDisplay, this.x, this.y + this.h / 2);
+    image(this.imageToDisplay, this.x, this.y + this.h / 2, this.w, this.h);
   }
 
 }
 
 let grid = [];
-let areeb;
+let areeb, playerimg, bulletImg;
+
+function preload() {
+  playerimg = loadImage("assets/playerIMG.jpg");
+  bulletImg = loadImage("assets/Just_A_Bullet.png");
+}
 
 function setup() {
-  createCanvas(windowWidth, windowHeight);
-  areeb = new Player1(width/2, height/2);
+  createCanvas(1600, 790);
+  areeb = new Player1(width/2, height/2, playerimg);
 }
 
 function draw() {
   background(255);
   areeb.display();
   areeb.update();
+}
+
+function rotatesPlayer() {
+  let dx = mouseX - areeb.x;
+  let dy = mouseY = areeb.y;
+  angle[i] = atan2(dy, dx);
 }
 
 function keyPressed() {
