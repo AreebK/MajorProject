@@ -5,32 +5,32 @@
 // Extra for Experts:
 // - describe what you did to take this project "above and beyond"
 
-class Bullet {
-  constructor(x, y, dx, dy, theImage) {
-    this.x = x;
-    this.y = y;
-    this.dx = dx;
-    this.dy = dy;
-    this.radius = 5;
-    this.offScreen = false;
-    this.imageToDisplay = theImage;
-  }
-
-  update() {
-    this.x += this.dx;
-    this.y += this.dy;
-    if (this.x >= width + this.radius || this.x <= 0 - this.radius || this.y >= height + this.radius || this.y <= 0 - this.radius) {
-      this.offScreen = true;
-    }
-  }
-
-  display() {
-    // fill(0);
-    // ellipse(this.x, this.y, this.radius, this.radius);
-    imageMode(CENTER);
-    image(this.imageToDisplay, this.x, this.y, 10, 22);
-  }
-}
+// class Bullet {
+//   constructor(x, y, dx, dy, theImage) {
+//     this.x = x;
+//     this.y = y;
+//     this.dx = dx;
+//     this.dy = dy;
+//     this.radius = 5;
+//     this.offScreen = false;
+//     this.imageToDisplay = theImage;
+//   }
+//
+//   update() {
+//     this.x += this.dx;
+//     this.y += this.dy;
+//     if (this.x >= width + this.radius || this.x <= 0 - this.radius || this.y >= height + this.radius || this.y <= 0 - this.radius) {
+//       this.offScreen = true;
+//     }
+//   }
+//
+//   display() {
+//     // fill(0);
+//     // ellipse(this.x, this.y, this.radius, this.radius);
+//     imageMode(CENTER);
+//     image(this.imageToDisplay, this.x, this.y, 10, 22);
+//   }
+// }
 
 class Player1 {
   constructor(x, y, theImage) {
@@ -48,6 +48,13 @@ class Player1 {
     this.isMovingLeft = false;
   }
 
+  rotatesPlayer() {
+    let dx = mouseX - this.x;
+    let dy = mouseY - this.y;
+    let angle = atan2(dy, dx);
+    rotate(angle);
+  }
+
   handleKeyPress() {
     if (key === "w" || key === "W") {
       this.isMovingUp = true;
@@ -61,11 +68,11 @@ class Player1 {
     if (key === "d" || key === "D") {
       this.isMovingRight = true;
     }
-    if (key === " ") {
-      //fire photons!!!
-      let someBullet = new Bullet(this.x, this.y, 0, -10, bulletImg);
-      this.bulletArray.push(someBullet);
-    }
+  //   if (key === " ") {
+  //     //fire photons!!!
+  //     let someBullet = new Bullet(this.x, this.y, 0, -10, bulletImg);
+  //     this.bulletArray.push(someBullet);
+  //   }
   }
 
   handleKeyRelease() {
@@ -98,46 +105,51 @@ class Player1 {
       this.x -= this.dx;
     }
 
-    // Lets you see the bullets
-    for (let i = this.bulletArray.length - 1; i >= 0; i--) {
-      this.bulletArray[i].update();
-      this.bulletArray[i].display();
-      if (this.bulletArray[i].offScreen) {
-        this.bulletArray.splice(i, 1);
-      }
-    }
+    // // Lets you see the bullets
+    // for (let i = this.bulletArray.length - 1; i >= 0; i--) {
+    //   this.bulletArray[i].update();
+    //   this.bulletArray[i].display();
+    //   if (this.bulletArray[i].offScreen) {
+    //     this.bulletArray.splice(i, 1);
+    //   }
+    // }
   }
 
   display() {
     imageMode(CENTER);
-    image(this.imageToDisplay, this.x, this.y + this.h / 2, this.w, this.h);
+    push();
+    translate(this.x, this.y);
+    this.rotatesPlayer();
+    image(this.imageToDisplay, 0, 0 + this.h / 2, this.w, this.h);
+    pop();
   }
 
 }
 
 let grid = [];
-let areeb, playerimg, bulletImg;
+let areeb, playerimg, bulletImg, backgroundImg;
+let state;
 
 function preload() {
-  playerimg = loadImage("assets/playerIMG.jpg");
+  playerimg = loadImage("assets/playerIMG.png");
   bulletImg = loadImage("assets/Just_A_Bullet.png");
+  backgroundImg = loadImage("assets/backgorund.jpg");
+
 }
 
 function setup() {
   createCanvas(1600, 790);
+  state = "gameStart";
   areeb = new Player1(width/2, height/2, playerimg);
+
 }
 
 function draw() {
-  background(255);
-  areeb.display();
-  areeb.update();
-}
 
-function rotatesPlayer() {
-  let dx = mouseX - areeb.x;
-  let dy = mouseY = areeb.y;
-  angle[i] = atan2(dy, dx);
+  if (state === "gameStart"){
+    areeb.update();
+    areeb.display();
+  }
 }
 
 function keyPressed() {
