@@ -14,14 +14,20 @@ class Bullet {
     this.dy = dy;
     this.radius = 5;
     this.offScreen = false;
+    this.enemyDetect = false;
     this.imageToDisplay = theImage;
   }
 
   update() {
     this.x += this.dx;
     this.y += this.dy;
+    bulletDetect = collideRectRect(this.x, this.y, this.radius, this.radius, enemySlime.x, enemySlime.y, enemySlime.w, enemySlime.h);
+    console.log(bulletDetect);
     if (this.x >= width + this.radius || this.x <= 0 - this.radius || this.y >= height + this.radius || this.y <= 0 - this.radius) {
       this.offScreen = true;
+    }
+    if(bulletDetect){
+      this.enemyDetect = true;
     }
   }
   display() {
@@ -160,10 +166,14 @@ class Player1 {
     for (let i = this.bulletArray.length - 1; i >= 0; i--) {
       this.bulletArray[i].update();
       this.bulletArray[i].display();
+      // if (this.bulletArray[i].enemyDetect) {
+      //   this.bulletArray.splice(i,1);
+      // }
       if (this.bulletArray[i].offScreen) {
         this.bulletArray.splice(i, 1);
       }
     }
+
   }
 
   display() {
@@ -218,6 +228,7 @@ class Slime {
     // this.displaySlimeUp = slimeImgUp;
     // this.displaySlimeLeft = slimeImgLeft;
     // this.displaySlimeRight = slimeImgRight;
+
     //Easy Ai
     this.glide = 0.01;
     this.w = this.displayIdle.width;
@@ -253,6 +264,7 @@ class Slime {
 }
 
 let someBullet;
+let bulletDetect;
 
 let grid = [
   [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
@@ -346,6 +358,8 @@ function drawMap() {
 function draw() {
   imageMode(CORNER);
   drawMap();
+  console.log(bulletDetect);
+
   // Updates and Displays Player One Sprite
   if (lifes > 0) {
   playerOne.display();
@@ -369,7 +383,7 @@ function draw() {
 
 function hitDetection(){
   lifeHit = collideRectRect(playerOne.x, playerOne.y, playerOne.w, playerOne.h, enemySlime.x, enemySlime.y, enemySlime.w, enemySlime.h);
-  console.log(lifeHit);
+  // console.log(lifeHit);
 }
 
 function bulletHitDetection(){
