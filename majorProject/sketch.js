@@ -34,10 +34,10 @@ class Bullet {
     }
   }
   display() {
-  fill(0);
-  rect(this.x, this.y, this.radius, this.radius);
-  imageMode(CENTER);
-  image(this.imageToDisplay, this.x, this.y);
+    fill(0);
+    rect(this.x, this.y, this.radius, this.radius);
+    imageMode(CENTER);
+    image(this.imageToDisplay, this.x, this.y);
   }
 }
 
@@ -198,6 +198,9 @@ class Player1 {
     fill(255, 255, 255, this.transparency);
     imageMode(CENTER);
     rect(this.x, this.y, this.w, this.h);
+    if (this.isRight || this.isLeft || this.isDown && this.isUp){
+      image(this.displayUpImg, this.x, this.y);
+    }
     if (this.isRight) {
       image(this.displayRightImg, this.x, this.y);
     }
@@ -322,7 +325,7 @@ let cellSize;
 let rows = 25;
 let cols = 25;
 let bulletImgRight, bulletImgLeft, bulletImgUp, bulletImgDown;
-let grassimg;
+let grassImg;
 let playerOne;
 let playerUp, playerDown, playerLeft, playerRight;
 let enemySlime;
@@ -381,12 +384,11 @@ function drawMap() {
 function draw() {
   imageMode(CORNER);
   drawMap();
-  console.log(checkForDetect);
 
   // Updates and Displays Player One Sprite
   if (lifes > 0) {
-  playerOne.display();
-  playerOne.update();
+    playerOne.display();
+    playerOne.update();
   }
 
   // Creates one Slime (this is a beta until the actual code for the random generation is created)
@@ -398,7 +400,7 @@ function draw() {
   //  Basic Detection where you get 3 lives and once at 0 console displays Game Over
   if (lifeHit) {
     if (lifes === 0){
-        console.log("Game Over");
+      console.log("Game Over");
     }
     lifes -= 1;
   }
