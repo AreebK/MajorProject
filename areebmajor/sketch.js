@@ -3,7 +3,8 @@
 // 14/12/2018
 //
 // Source Code for Easy Ai https://gamedev.stackexchange.com/questions/50978/moving-a-sprite-towards-an-x-and-y-coordinate
-
+// Extra for Experts:
+// - describe what you did to take this project "above and beyond"
 
 class Bullet {
   constructor(x, y, dx, dy, theImage) {
@@ -11,7 +12,7 @@ class Bullet {
     this.y = y;
     this.dx = dx;
     this.dy = dy;
-    this.radius = 7;
+    this.radius = 5;
     this.offScreen = false;
     this.enemyDetect = false;
     this.imageToDisplay = theImage;
@@ -21,16 +22,12 @@ class Bullet {
     this.x += this.dx;
     this.y += this.dy;
     bulletDetect = collideRectRect(this.x, this.y, this.radius, this.radius, enemySlime.x, enemySlime.y, enemySlime.w, enemySlime.h);
-    // console.log(bulletDetect);
+    console.log(bulletDetect);
     if (this.x >= width + this.radius || this.x <= 0 - this.radius || this.y >= height + this.radius || this.y <= 0 - this.radius) {
       this.offScreen = true;
     }
     if(bulletDetect){
       this.enemyDetect = true;
-      checkForDetect = true;
-    }
-    else {
-      checkForDetect = false;
     }
   }
   display() {
@@ -40,8 +37,6 @@ class Bullet {
     image(this.imageToDisplay, this.x, this.y);
   }
 }
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 class Player1 {
   constructor(x, y, downImg, upImg, leftImg, rightImg, down_idle_img) {
@@ -86,7 +81,7 @@ class Player1 {
       this.isRight = true;
       this.isIdle = false;
     }
-    if (keyCode === UP_ARROW) {
+    if (key === "i" || key === "I") {
       someBullet = new Bullet(this.x, this.y, 0, -10, bulletImgUp);
       this.bulletArray.push(someBullet);
       this.shootUp = true;
@@ -95,7 +90,7 @@ class Player1 {
       this.shootDown = false;
       this.isIdle = false;
     }
-    if (keyCode === LEFT_ARROW) {
+    if (key === "j" || key === "J") {
       someBullet = new Bullet(this.x, this.y, -10, 0, bulletImgLeft);
       this.bulletArray.push(someBullet);
       this.shootUp = false;
@@ -104,7 +99,7 @@ class Player1 {
       this.shootDown = false;
       this.isIdle = false;
     }
-    if (keyCode === DOWN_ARROW) {
+    if (key === "k" || key === "K") {
       someBullet = new Bullet(this.x, this.y, 0, 10, bulletImgDown);
       this.bulletArray.push(someBullet);
       this.shootUp = false;
@@ -113,7 +108,7 @@ class Player1 {
       this.shootDown = true;
       this.isIdle = false;
     }
-    if (keyCode === RIGHT_ARROW) {
+    if (key === "l" || key === "L") {
       someBullet = new Bullet(this.x, this.y, 10, 0, bulletImgRight);
       this.bulletArray.push(someBullet);
       this.shootUp = false;
@@ -139,22 +134,6 @@ class Player1 {
     }
     if (key === "d" || key === "D") {
       this.isRight = false;
-      this.isIdle = true;
-    }
-    if (keyCode === RIGHT_ARROW) {
-      this.shootRight = false;
-      this.isIdle = true;
-    }
-    if (keyCode === UP_ARROW) {
-      this.shootUp = false;
-      this.isIdle = true;
-    }
-    if (keyCode === LEFT_ARROW) {
-      this.shootLeft = false;
-      this.isIdle = true;
-    }
-    if (keyCode === DOWN_ARROW) {
-      this.shootDown = false;
       this.isIdle = true;
     }
   }
@@ -183,15 +162,15 @@ class Player1 {
     if (this.y <= 8){
       this.y += this.dy;
     }
-    // Shows Bulelts and splices
+    //show bullets
     for (let i = this.bulletArray.length - 1; i >= 0; i--) {
       this.bulletArray[i].update();
       this.bulletArray[i].display();
       if (this.bulletArray[i].offScreen || this.bulletArray[i].enemyDetect) {
         this.bulletArray.splice(i, 1);
-        // score ++; Implementing in the future
       }
     }
+
   }
 
   display() {
@@ -200,8 +179,8 @@ class Player1 {
     fill(255, 255, 255, this.transparency);
     imageMode(CENTER);
     rect(this.x, this.y, this.w, this.h);
-    if (this.isRight || this.isLeft || this.isDown && this.isUp){
-      image(this.displayUpImg, this.x, this.y);
+    if (this.isIdle) {
+      image(this.idleImgDisplay, this.x, this.y);
     }
     if (this.isRight) {
       image(this.displayRightImg, this.x, this.y);
@@ -217,24 +196,26 @@ class Player1 {
     }
     if (this.shootUp){
       image(this.displayUpImg, this.x, this.y);
+      this.shootUp = false;
+      this.isIdle = true;
     }
     if (this.shootDown){
       image(this.displayDownImg, this.x, this.y);
+      this.shootDown = false;
+      this.isIdle = true;
     }
     if (this.shootLeft){
       image(this.displayLeftImg, this.x, this.y);
+      this.shootLeft = false;
+      this.isIdle = true;
     }
     if (this.shootRight){
       image(this.displayRightImg, this.x, this.y);
-    }
-    if (this.isIdle) {
-      image(this.idleImgDisplay, this.x, this.y);
+      this.shootRight = false;
+      this.isIdle = true;
     }
   }
 }
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 class Slime {
   constructor(x, y, slimeImage){
     this.x = x;
@@ -251,24 +232,8 @@ class Slime {
     this.h = this.displayIdle.height;
   }
   spawn(){
-    let choice = int(random(3));
-    console.log(choice);
-    if (choice === 0) {
-      this.x = random(600);
-      this.y = 0;
-    }
-    if (choice === 1) {
-      this.x = 0;
-      this.y = random(600);
-    }
-    if (choice === 2) {
-      this.x = 600;
-      this.y = random(600);
-    }
-    if (choice === 3) {
-      this.x = random(600);
-      this.y = 600;
-    }
+    this.x = 0;
+    this.y = 300;
   }
 
 
@@ -295,37 +260,37 @@ class Slime {
   }
 }
 
-let grid = [
-  [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
-  [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
-  [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
-  [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
-  [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
-  [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
-  [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
-  [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
-  [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
-  [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
-  [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
-  [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
-  [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
-  [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
-  [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
-  [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
-  [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
-  [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
-  [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
-  [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
-  [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
-  [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
-  [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
-  [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
-  [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2]
-];
-
-// All the functions to run this code
 let someBullet;
 let bulletDetect;
+
+let grid = [
+  [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+  [1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1],
+  [1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1],
+  [1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1],
+  [1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1],
+  [1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1],
+  [1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1],
+  [1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1],
+  [1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1],
+  [1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1],
+  [1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1],
+  [1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1],
+  [1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1],
+  [1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1],
+  [1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1],
+  [1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1],
+  [1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1],
+  [1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1],
+  [1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1],
+  [1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1],
+  [1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1],
+  [1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1],
+  [1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1],
+  [1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1],
+  [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+];
+
 let cellSize;
 let rows = 25;
 let cols = 25;
@@ -338,10 +303,7 @@ let slimeUp, slimeDown, slimeLeft, slimeRight;
 let lifes = 25;
 let lifeHit = false;
 let bulletHit = false;
-let checkForDetect = false;
-let enemyAmount = 35;
-let slimes = [];
-// let score = 0;
+
 
 function preload() {
   //Preloads Images for the game
@@ -363,16 +325,18 @@ function preload() {
   bulletImgLeft = loadImage("assets/bulletLeft.png");
   bulletImgUp = loadImage("assets/bulletUp.png");
   bulletImgDown = loadImage("assets/bulletDown.png");
+
+
 }
 
 function setup() {
   createCanvas(600, 600);
   //downImg, upImg, leftImg, rightImg, down_idle_img
+  enemySlime = new Slime(width / 2, height / 1.8, slimeDown);
+  enemySlime.spawn();
   playerOne = new Player1(width / 2, height / 1.8, playerDown, playerUp, playerLeft, playerRight, playerDown);
   cellSize = 24;
 }
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 function drawMap() {
   for (let i = 0; i < cols; i++) {
@@ -388,8 +352,6 @@ function drawMap() {
   }
 }
 
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 function draw() {
   imageMode(CORNER);
   drawMap();
@@ -401,28 +363,33 @@ function draw() {
   }
 
   // Creates one Slime (this is a beta until the actual code for the random generation is created)
-  for (let i = 0; i <= enemyAmount; i ++){
-    enemySlime = new Slime(width / 2, height / 1.8, slimeDown);
-    slimes.push(enemySlime);
-    enemySlime.display()
-    enemySlime.update();
-  }
+  enemySlime.display();
+  enemySlime.update();
 
+  // bulletHitDetection();
   hitDetection();
-
   //  Basic Detection where you get 3 lives and once at 0 console displays Game Over
   if (lifeHit) {
     if (lifes === 0){
       console.log("Game Over");
+
+      lifes -= 1;
     }
-    lifes -= 1;
   }
 }
 
 function hitDetection(){
   lifeHit = collideRectRect(playerOne.x, playerOne.y, playerOne.w, playerOne.h, enemySlime.x, enemySlime.y, enemySlime.w, enemySlime.h);
   // console.log(lifeHit);
+  if (lifeHit) {
+    lifes --;
+  }
 }
+
+// function bulletHitDetection(){
+//   bulletHit = collideRectRect(enemySlime.x, enemySlime.y, enemySlime.w, enemySlime.h, someBullet.x, someBullet.y, someBullet.radius, someBullet.radius);
+//   console.log(bulletHit);
+// }
 
 function keyPressed() {
   playerOne.handleKeyPress();
