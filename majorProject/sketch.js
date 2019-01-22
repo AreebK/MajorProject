@@ -4,7 +4,7 @@
 //
 // Source Code for Easy Ai https://gamedev.stackexchange.com/questions/50978/moving-a-sprite-towards-an-x-and-y-coordinate
 
-
+// Class for the Bullet
 class Bullet {
   constructor(x, y, dx, dy, theImage) {
     this.x = x;
@@ -18,19 +18,15 @@ class Bullet {
   }
 
   update() {
+    // This Checks for Bullet detection used later in the code to splice and take away the slimes life
     this.x += this.dx;
     this.y += this.dy;
     bulletDetect = collideRectRect(this.x, this.y, this.radius, this.radius, enemySlime.x, enemySlime.y, enemySlime.w, enemySlime.h);
-    // console.log(bulletDetect);
     if (this.x >= width + this.radius || this.x <= 0 - this.radius || this.y >= height + this.radius || this.y <= 0 - this.radius) {
       this.offScreen = true;
     }
     if(bulletDetect){
       this.enemyDetect = true;
-      checkForDetect = true;
-    }
-    else {
-      checkForDetect = false;
     }
   }
   display() {
@@ -41,7 +37,6 @@ class Bullet {
   }
 }
 
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 class Player1 {
   constructor(x, y, downImg, upImg, leftImg, rightImg, down_idle_img) {
@@ -187,9 +182,14 @@ class Player1 {
     for (let i = this.bulletArray.length - 1; i >= 0; i--) {
       this.bulletArray[i].update();
       this.bulletArray[i].display();
-      if (this.bulletArray[i].offScreen || this.bulletArray[i].enemyDetect) {
+      if (this.bulletArray[i].offScreen) {
         this.bulletArray.splice(i, 1);
-        // score ++; Implementing in the future
+      }
+      else if (this.bulletArray[i].enemyDetect){
+        this.bulletArray.splice(i, 1);
+        slimeLifes --
+        score ++
+        console.log(score);
       }
     }
   }
@@ -200,40 +200,49 @@ class Player1 {
     fill(255, 255, 255, this.transparency);
     imageMode(CENTER);
     rect(this.x, this.y, this.w, this.h);
-    if (this.isRight || this.isLeft || this.isDown && this.isUp){
-      image(this.displayUpImg, this.x, this.y);
-    }
-    if (this.isRight) {
-      image(this.displayRightImg, this.x, this.y);
-    }
-    if (this.isLeft) {
-      image(this.displayLeftImg, this.x, this.y);
-    }
-    if (this.isUp) {
-      image(this.displayUpImg, this.x, this.y);
-    }
-    if (this.isDown) {
-      image(this.displayDownImg, this.x, this.y);
-    }
     if (this.shootUp){
       image(this.displayUpImg, this.x, this.y);
     }
-    if (this.shootDown){
+    else if (this.shootDown){
       image(this.displayDownImg, this.x, this.y);
     }
-    if (this.shootLeft){
+    else if (this.shootLeft){
       image(this.displayLeftImg, this.x, this.y);
     }
-    if (this.shootRight){
+    else if (this.shootRight){
       image(this.displayRightImg, this.x, this.y);
     }
-    if (this.isIdle) {
+    else if (this.isIdle) {
       image(this.idleImgDisplay, this.x, this.y);
+    }
+    else if (this.isLeft && this.isUp){
+      image(this.displayLeftImg, this.x, this.y);
+    }
+    else if (this.isLeft && this.isDown){
+      image(this.displayLeftImg, this.x, this.y);
+    }
+    else if (this.isDown && this.isLeft){
+      image(this.displayLeftImg, this.x, this.y);
+    }
+    else if (this.isDown && this.isRight){
+      image(this.displayRightImg, this.x, this.y);
+    }
+    else if (this.isRight) {
+      image(this.displayRightImg, this.x, this.y);
+    }
+    else if (this.isLeft) {
+      image(this.displayLeftImg, this.x, this.y);
+    }
+    else if (this.isUp) {
+      image(this.displayUpImg, this.x, this.y);
+    }
+    else if (this.isDown) {
+      image(this.displayDownImg, this.x, this.y);
     }
   }
 }
 
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 
 class Slime {
   constructor(x, y, slimeImage){
@@ -252,7 +261,6 @@ class Slime {
   }
   spawn(){
     let choice = int(random(3));
-    console.log(choice);
     if (choice === 0) {
       this.x = random(600);
       this.y = 0;
@@ -281,8 +289,6 @@ class Slime {
     let targetY = playerOne.y;
     let dy = targetY - this.y;
     this.y += dy * this.glide;
-
-
 
   }
   display(){
@@ -332,21 +338,30 @@ let cols = 25;
 let bulletImgRight, bulletImgLeft, bulletImgUp, bulletImgDown;
 let grassImg;
 let playerOne;
-let playerUp, playerDown, playerLeft, playerRight;
+let playerUp, playerDown, playerLeft, playerRight, deathScreenSetting, winScreen;
 let enemySlime;
-let slimeUp, slimeDown, slimeLeft, slimeRight;
+let slimeUp, slimeDown, slimeLeft, slimeRight, mainMenu, playImg, backImg, controlImg, controlSettings;
 let lifes = 25;
 let lifeHit = false;
 let bulletHit = false;
-let checkForDetect = false;
-let enemyAmount = 35;
-let slimes = [];
-// let score = 0;
+let detectGameOver = false;
+let slimeLifes = 30;
+let state = "mainMenuScreen";
+let score = 0;
+let hoverPlay = false; // 2D Collide function that defaults the play button as false
+let hoverControls = false; // 2D Collide function that defaults the Control button as false
+let hoverBackControl = false; // 2D Collide function that defaults the BackControl button as false
+// Couldn't add/ dont know how to add this would need help in the future
+// let enemyAmount = 35;
+// let slimeArray = [];
+
 
 function preload() {
   //Preloads Images for the game
+
   //Images for the grid
   grassImg = loadImage("assets/grass.png");
+
   //Images for Character and Enemy
   playerUp = loadImage("assets/charup.png");
   playerDown = loadImage("assets/charidle.png");
@@ -363,65 +378,101 @@ function preload() {
   bulletImgLeft = loadImage("assets/bulletLeft.png");
   bulletImgUp = loadImage("assets/bulletUp.png");
   bulletImgDown = loadImage("assets/bulletDown.png");
+
+  //Images for Main Menu and Death Screen
+  mainMenu = loadImage("assets/mainMenu.png");
+  playImg = loadImage("assets/play.png");
+  backImg = loadImage("assets/back.png");
+  controlImg = loadImage("assets/controls.png");
+  controlSettings = loadImage("assets/controlMenu.png");
+  deathScreenSetting = loadImage("assets/blackscreen.png");
+  winScreen = loadImage("assets/blackscreen.png");
 }
 
 function setup() {
   createCanvas(600, 600);
   //downImg, upImg, leftImg, rightImg, down_idle_img
   playerOne = new Player1(width / 2, height / 1.8, playerDown, playerUp, playerLeft, playerRight, playerDown);
+  enemySlime = new Slime(width / 2, height / 1.8, slimeDown);
+  enemySlime.spawn();
   cellSize = 24;
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 function drawMap() {
-  for (let i = 0; i < cols; i++) {
-    for (let j = 0; j < rows; j++) {
+  if (state === "gameScreen"){
+    for (let i = 0; i < cols; i++) {
+      for (let j = 0; j < rows; j++) {
 
-      if (grid[j][i] === 1) {
-        image(grassImg, i * cellSize, j * cellSize, cellSize, cellSize);
-      }
-      else if (grid[j][i] === 2) {
-        image(grassImg, i * cellSize, j * cellSize, cellSize, cellSize);
+        if (grid[j][i] === 1) {
+          image(grassImg, i * cellSize, j * cellSize, cellSize, cellSize);
+        }
+        else if (grid[j][i] === 2) {
+          image(grassImg, i * cellSize, j * cellSize, cellSize, cellSize);
+        }
       }
     }
   }
 }
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 function draw() {
   imageMode(CORNER);
   drawMap();
-
-  // Updates and Displays Player One Sprite
-  if (lifes > 0) {
-    playerOne.display();
-    playerOne.update();
+  if (state === "mainMenuScreen"){
+    image(mainMenu,0,0,600,600);
   }
-
-  // Creates one Slime (this is a beta until the actual code for the random generation is created)
-  for (let i = 0; i <= enemyAmount; i ++){
-    enemySlime = new Slime(width / 2, height / 1.8, slimeDown);
-    slimes.push(enemySlime);
-    enemySlime.display()
-    enemySlime.update();
+  else if (state === "controlSettingScreen"){
+    image(controlSettings,0,0,600,600);
   }
-
-  hitDetection();
-
-  //  Basic Detection where you get 3 lives and once at 0 console displays Game Over
-  if (lifeHit) {
-    if (lifes === 0){
-      console.log("Game Over");
+  else if (state === "deathScreen") {
+    image(deathScreenSetting, 0, 0, 600, 600);
+    if (key === "p" || key === "P") {
+      window.location.reload(true);
     }
-    lifes -= 1;
   }
+  else if (state === "winnerScreen") {
+    image(winScreen, 0, 0, 600, 600);
+    if (key === "p" || key === "P") {
+      window.location.reload(true);
+    }
+  }
+  else if (state === "gameScreen"){
+    // Updates and Displays Player One Sprite
+    if (lifes >= 0) {
+      playerOne.display();
+      playerOne.update();
+    }
+    else {
+      state = "deathScreen";
+    }
+
+    // Creates one Slime (this is a beta until the actual code for the random generation is created)
+    if (slimeLifes >= 0){
+      enemySlime.display();
+      enemySlime.update();
+    }
+    else {
+      state = "winnerScreen";
+    }
+
+    hitDetection();
+
+    //  Basic Detection where you get 3 lives and once at 0 console displays Game Over
+    if (lifeHit) {
+      if (lifes === 0){
+        detectGameOver = true;
+        console.log("Game Over");
+      }
+      lifes -= 1;
+    }
+  }
+  menuScreen();
+  hoverPlay = collidePointRect(mouseX, mouseY,200, 200, 200, 75); // Sets region to click on the 2D collide Function
+  hoverControls = collidePointRect(mouseX, mouseY, 200, 300, 200, 75); // Sets region to click on the 2D collide Function
+  hoverBackControl = collidePointRect(mouseX, mouseY, 20, 500, 60,60); // Sets region to click on the 2D collide Function
 }
 
 function hitDetection(){
   lifeHit = collideRectRect(playerOne.x, playerOne.y, playerOne.w, playerOne.h, enemySlime.x, enemySlime.y, enemySlime.w, enemySlime.h);
-  // console.log(lifeHit);
 }
 
 function keyPressed() {
@@ -430,4 +481,85 @@ function keyPressed() {
 
 function keyReleased() {
   playerOne.handleKeyRelease();
+}
+
+function menuScreen() {
+  if (state === "mainMenuScreen") {
+    push(); // Creating rectangles that are linked to 2d Collide functions
+    let fillStart = controlStart();
+    fill(fillStart);
+    rect(200, 200, 200, 75);
+    image(playImg, 200, 200, 200, 75); // Image Files that displays what button does
+    pop();
+
+    push(); // Creating rectangles that are linked to 2d Collide functions
+    let fillControl = controlFill();
+    fill(fillControl);
+    rect(200, 300, 200, 75);
+    image(controlImg, 200, 300, 200, 75); // Image Files that displays what button does
+    pop();
+  }
+
+  else if (state === "controlSettingScreen") {
+    push(); // Creating rectangles that are linked to 2d Collide functions
+    let fillBack = backFill();
+    fill(fillBack);
+    rect(20, 500, 60, 60);
+    image(backImg, 20, 500, 60,60); // Image Files that displays what button does
+    pop();
+  }
+}
+
+function controlStart() {
+  if (state === "mainMenuScreen"){
+    if(hoverPlay){ // This means if mouse x and y are in the certian cordinates then it will return triggering the if staement
+      fillStart = color(255);
+    }
+    else{
+      fillStart = color(194, 239, 255);
+    }
+    return fillStart;
+  }
+}
+
+function backFill() {
+  let fillBack;
+  if (state === "controlSettingScreen"){
+    if(hoverBackControl){ // This means if mouse x and y are in the certian cordinates then it will return triggering the if staement
+      fillBack = color(255);
+    }
+    else{
+      fillBack = color(194, 239, 255);
+    }
+    return fillBack;
+  }
+}
+
+function controlFill() {
+  // let fillControl;
+  if (state === "mainMenuScreen"){
+    if(hoverControls){ // This means if mouse x and y are in the certian cordinates then it will return triggering the if staement
+      fillControl = color(255);
+    }
+    else{
+      fillControl = color(194, 239, 255);
+    }
+    return fillControl;
+  }
+}
+
+function mousePressed() {
+  if (state === "mainMenuScreen"){
+    if (hoverPlay) {
+      state = "gameScreen";
+    }
+    else if (hoverControls) {
+      state = "controlSettingScreen";
+    }
+  }
+  else if (state === "controlSettingScreen") {
+    if (hoverBackControl){
+      state = "mainMenuScreen";
+    }
+  }
 }
